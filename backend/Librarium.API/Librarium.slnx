@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="../Librarium.Application/Librarium.Application.csproj" Id="ad87b8d3-ca8d-46e7-92e5-a1745a074795" />
   <Project Path="../Librarium.Core/Librarium.Core.csproj" Id="9352cb06-3862-432b-973e-898db838ba3f" />
   <Project Path="../Librarium.DataAccess/Librarium.DataAccess.csproj" Id="646af525-e87a-4d85-8210-326287b122e7" />
   <Project Path="Librarium.API.csproj" />

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Librarium.Core\Librarium.Core.csproj" />
+    <ProjectReference Include="..\Librarium.DataAccess\Librarium.DataAccess.csproj" />
+  </ItemGroup>
+
+</Project>
