@@ -9,6 +9,6 @@ So you just login and create your own campaign or join campaign of your friend. 
 
 Technologies that are used here (is not done yet so stack of technologies that are used here will grow): 
 
-For backend: Postgresql, Docker, ASP.NET Core Web API, Entity Framework
+For backend: Postgresql, Docker, ASP.NET Core Web API, Entity Framework Core
 
 For frontend: Nothing :)
