@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Librarium.DataAccess.Migrations
 {
-    [DbContext(typeof(CampaignDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20260919222226_init")]
     partial class init
     {

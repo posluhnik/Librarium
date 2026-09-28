@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="8.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Librarium.Core\Librarium.Core.csproj" />
     <ProjectReference Include="..\Librarium.DataAccess\Librarium.DataAccess.csproj" />
   </ItemGroup>

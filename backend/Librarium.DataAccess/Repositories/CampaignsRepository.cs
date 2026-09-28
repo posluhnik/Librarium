@@ -6,9 +6,9 @@ namespace Librarium.DataAccess.Repositories
 {
     public class CampaignsRepository : ICampaignsRepository
     {
-        private readonly CampaignDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CampaignsRepository(CampaignDbContext context)
+        public CampaignsRepository(ApplicationDbContext context)
         {
             _context = context;
         }
