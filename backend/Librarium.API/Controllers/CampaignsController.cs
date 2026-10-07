@@ -1,7 +1,7 @@
 ﻿using Librarium.Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Librarium.API.Contacts;
 using Librarium.Core.Models;
+using Librarium.API.Contacts;
 
 namespace Librarium.API.Controllers
 {

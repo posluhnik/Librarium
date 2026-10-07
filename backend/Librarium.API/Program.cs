@@ -31,6 +31,13 @@ builder.Services
     })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "Librarium.Auth";
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.SlidingExpiration = true;
+});
+
 builder.Services.AddScoped<ICampaignsService, CampaignsService>();
 builder.Services.AddScoped<ICampaignsRepository, CampaignsRepository>();
 
@@ -49,6 +56,7 @@ app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
