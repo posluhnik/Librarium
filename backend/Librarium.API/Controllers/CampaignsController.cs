@@ -1,7 +1,8 @@
-﻿using Librarium.Application.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Librarium.API.Contacts;
+using Librarium.Application.Services;
 using Librarium.Core.Models;
-using Librarium.API.Contacts;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Librarium.API.Controllers
 {
@@ -21,7 +22,7 @@ namespace Librarium.API.Controllers
         {
             var campaigns = await _campaignsService.GetAllCampaigns();
 
-            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.Name, b.Description));
+            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description));
 
             return Ok(response);
         }
@@ -29,8 +30,11 @@ namespace Librarium.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var (campaign, error) = Campaign.Create(
                 Guid.NewGuid(),
+                userId,
                 request.Name,
                 request.Description);
 
@@ -39,7 +43,7 @@ namespace Librarium.API.Controllers
                 return BadRequest(error);
             }
 
-            var campaignId = await _campaignsService.CreateCampaign(campaign);
+            var campaignId = await _campaignsService.CreateCampaign(campaign, userId);
 
             return Ok(campaignId);
         }

@@ -20,7 +20,7 @@ namespace Librarium.DataAccess.Repositories
                 .ToListAsync();
 
             var campaigns = campaignEntities
-                .Select(b => Campaign.Create(b.Id, b.Name, b.Description).campaign)
+                .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description).campaign)
                 .ToList();
 
             return campaigns;

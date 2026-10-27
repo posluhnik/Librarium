@@ -4,18 +4,20 @@
     {
         public const int MAX_TITLE_LENGTH = 250;
 
-        private Campaign(Guid id, string name, string description)
+        private Campaign(Guid id, string ownerid, string name, string description)
         {
-            Id = id; 
+            Id = id;
+            ownerId = ownerid;
             Name = name;
             Description = description;
         }
         
         public Guid Id { get; }
+        public string ownerId { get; set; }
         public string Name { get; } = string.Empty;
         public string Description { get; } = string.Empty;
 
-        public static (Campaign campaign, string Error) Create(Guid id, string name, string description)
+        public static (Campaign campaign, string Error) Create(Guid id, string ownerId, string name, string description)
         {
             var error = string.Empty;
 
@@ -24,7 +26,7 @@
                 error = "Invalid name";
             }
 
-            var сampaign = new Campaign(id, name, description);
+            var сampaign = new Campaign(id, ownerId, name, description);
 
             return (сampaign, error);
         }

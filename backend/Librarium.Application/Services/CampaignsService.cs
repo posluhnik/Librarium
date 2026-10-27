@@ -1,5 +1,6 @@
 ﻿using Librarium.Core.Models;
 using Librarium.DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Librarium.Application.Services
 {
@@ -17,9 +18,9 @@ namespace Librarium.Application.Services
             return await _campaginsRepository.Get();
         }
 
-        public async Task<Guid> CreateCampaign(Campaign campaign)
+        public async Task<Guid> CreateCampaign(Campaign campaign, string ownerId)
         {
-            return await _campaginsRepository.Create(campaign);
+            return await _campaginsRepository.Create(campaign, ownerId);
         }
 
         public async Task<Guid> UpdateCampaign(Guid id, string name, string description)

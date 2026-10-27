@@ -17,6 +17,9 @@ namespace Librarium.DataAccess.Configurations
 
             builder.Property(b => b.Description)
                 .IsRequired();
+
+            builder.Property(b => b.ownerId)
+                .IsRequired();
         }
     }
 }
