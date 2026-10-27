@@ -8,7 +8,7 @@
         {
             Id = id; 
             Name = name;
-            Description = description; 
+            Description = description;
         }
         
         public Guid Id { get; }

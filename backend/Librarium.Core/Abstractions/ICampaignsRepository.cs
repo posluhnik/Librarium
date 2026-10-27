@@ -4,7 +4,7 @@ namespace Librarium.DataAccess.Repositories
 {
     public interface ICampaignsRepository
     {
-        Task<Guid> Create(Campaign campaign);
+        Task<Guid> Create(Campaign campaign, string ownerId);
         Task<Guid> Delete(Guid id);
         Task<List<Campaign>> Get();
         Task<Guid> Update(Guid id, string name, string description);

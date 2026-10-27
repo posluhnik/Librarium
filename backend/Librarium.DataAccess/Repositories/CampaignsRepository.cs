@@ -26,11 +26,12 @@ namespace Librarium.DataAccess.Repositories
             return campaigns;
         }
 
-        public async Task<Guid> Create(Campaign campaign)
+        public async Task<Guid> Create(Campaign campaign, string ownerId)
         {
             var campaignEntity = new CampaignEntity
             {
                 Id = campaign.Id,
+                ownerId = ownerId,
                 Name = campaign.Name,
                 Description = campaign.Description,
             };
