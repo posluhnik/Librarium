@@ -69,5 +69,15 @@ namespace Librarium.API.Controllers
 
             return Ok(await _campaignsService.DeleteCampaign(id, userId));
         }
+
+        [HttpPost("join/{id:guid}")]
+        public async Task<ActionResult> JoinCampaign(Guid id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _campaignsService.JoinCampaign(id, userId);
+
+            return Ok();
+        }
     }
 }

@@ -29,23 +29,36 @@ namespace Librarium.DataAccess.Repositories
 
         public async Task<Guid> Create(Campaign campaign, string ownerId)
         {
-            var campaignEntity = new CampaignEntity
+            if (string.IsNullOrEmpty(ownerId))
             {
-                Id = campaign.Id,
-                ownerId = ownerId,
-                Name = campaign.Name,
-                Description = campaign.Description,
-                Players = new List<string>()
-            };
+                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
+            }
+            else
+            {
+                var campaignEntity = new CampaignEntity
+                {
+                    Id = campaign.Id,
+                    ownerId = ownerId,
+                    Name = campaign.Name,
+                    Description = campaign.Description,
+                    Players = new List<string>()
+                };
 
-            await _context.Campaigns.AddAsync(campaignEntity);
-            await _context.SaveChangesAsync();
+                await _context.Campaigns.AddAsync(campaignEntity);
+                await _context.SaveChangesAsync();
 
-            return campaignEntity.Id;
+                return campaignEntity.Id;
+            }
+                
         }
 
         public async Task<Guid> Update(Guid id, string ownerId, string name, string description)
         {
+            if (string.IsNullOrEmpty(ownerId))
+            {
+                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
+            }
+
             if (ownerId == _context.Campaigns.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
                 await _context.Campaigns
                     .Where(b => b.Id == id)
@@ -71,7 +84,7 @@ namespace Librarium.DataAccess.Repositories
         {
             var campaign = await _context.Campaigns.FirstOrDefaultAsync(b => b.Id == id);
 
-            if (campaign != null && !campaign.Players.Contains(userId))
+            if (campaign != null && !campaign.Players.Contains(userId) && campaign.ownerId != userId && !string.IsNullOrEmpty(userId))
             {
                 campaign.Players.Add(userId);
                 await _context.SaveChangesAsync();
