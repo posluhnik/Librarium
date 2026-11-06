@@ -13,9 +13,9 @@ namespace Librarium.Application.Services
             _campaginsRepository = campaginsRepository;
         }
 
-        public async Task<List<Campaign>> GetAllCampaigns()
+        public async Task<List<Campaign>> GetAllCampaigns(string userId)
         {
-            return await _campaginsRepository.Get();
+            return await _campaginsRepository.Get(userId);
         }
 
         public async Task<Guid> CreateCampaign(Campaign campaign, string ownerId)
@@ -23,14 +23,18 @@ namespace Librarium.Application.Services
             return await _campaginsRepository.Create(campaign, ownerId);
         }
 
-        public async Task<Guid> UpdateCampaign(Guid id, string name, string description)
+        public async Task<Guid> UpdateCampaign(Guid id, string ownerId, string name, string description)
         {
-            return await _campaginsRepository.Update(id, name, description);
+            return await _campaginsRepository.Update(id, ownerId, name, description);
         }
 
-        public async Task<Guid> DeleteCampaign(Guid id)
+        public async Task<Guid> DeleteCampaign(Guid id, string ownerId)
         {
-            return await _campaginsRepository.Delete(id);
+            return await _campaginsRepository.Delete(id, ownerId);
+        }
+        public async Task<Guid> JoinCampaign(Guid id, string userId)
+        {
+            return await _campaginsRepository.Join(id, userId);
         }
     }
 }

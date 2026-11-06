@@ -20,7 +20,9 @@ namespace Librarium.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CampaignsResponse>>> GetCampaigns()
         {
-            var campaigns = await _campaignsService.GetAllCampaigns();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            var campaigns = await _campaignsService.GetAllCampaigns(userId);
 
             var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description));
 
@@ -36,7 +38,9 @@ namespace Librarium.API.Controllers
                 Guid.NewGuid(),
                 userId,
                 request.Name,
-                request.Description);
+                request.Description,
+                players: new List<string>()
+                );
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -51,7 +55,9 @@ namespace Librarium.API.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<Guid>> UpdateCampaigns(Guid id, [FromBody] CampaignsRequest request)
         {
-            var campaignId = await _campaignsService.UpdateCampaign(id, request.Name, request.Description);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var campaignId = await _campaignsService.UpdateCampaign(id, userId, request.Name, request.Description);
 
             return Ok(campaignId);
         }
@@ -59,7 +65,9 @@ namespace Librarium.API.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<Guid>> DeleteCampaign(Guid id)
         {
-            return Ok(await _campaignsService.DeleteCampaign(id));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            return Ok(await _campaignsService.DeleteCampaign(id, userId));
         }
     }
 }
