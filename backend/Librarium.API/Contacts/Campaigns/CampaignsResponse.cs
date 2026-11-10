@@ -5,5 +5,6 @@
         string ownerId,
         string Name,
         string Description,
-        List<string> Players);
+        List<string> Players
+    );
 }

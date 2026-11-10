@@ -29,6 +29,11 @@ namespace Librarium.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<CampaignsResponse>> GetCampaignById(Guid id)
+        {
+            
+        }
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)
         {

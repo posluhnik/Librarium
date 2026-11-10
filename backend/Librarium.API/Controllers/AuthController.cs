@@ -87,6 +87,11 @@ public class AuthController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userName = User.FindFirstValue(ClaimTypes.Name);
 
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User is not logged in");
+        }
+        
         return Ok(new
         {
             userId,
