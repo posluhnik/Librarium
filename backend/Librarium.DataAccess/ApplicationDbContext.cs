@@ -12,4 +12,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<CampaignEntity> Campaigns { get; set; }
+    public DbSet<CharacterEntity> Characters { get; set; }
 }

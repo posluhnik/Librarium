@@ -24,7 +24,7 @@ namespace Librarium.API.Controllers
             
             var campaigns = await _campaignsService.GetAllCampaigns(userId);
 
-            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description));
+            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description, b.Players));
 
             return Ok(response);
         }

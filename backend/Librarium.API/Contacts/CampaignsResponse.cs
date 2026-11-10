@@ -4,5 +4,6 @@
         Guid Id,
         string ownerId,
         string Name,
-        string Description);
+        string Description,
+        List<string> Players);
 }
