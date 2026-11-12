@@ -18,6 +18,11 @@ namespace Librarium.Application.Services
             return await _campaginsRepository.Get(userId);
         }
 
+        public async Task<Campaign> GetCampaignById(Guid id, string userId)
+        {
+            return await _campaginsRepository.GetById(id, userId);
+        }
+
         public async Task<Guid> CreateCampaign(Campaign campaign, string ownerId)
         {
             return await _campaginsRepository.Create(campaign, ownerId);

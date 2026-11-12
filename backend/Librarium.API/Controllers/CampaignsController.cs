@@ -32,7 +32,11 @@ namespace Librarium.API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CampaignsResponse>> GetCampaignById(Guid id)
         {
-            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var campaign = await _campaignsService.GetCampaignById(id, userId);
+
+            return Ok(campaign);
         }
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)

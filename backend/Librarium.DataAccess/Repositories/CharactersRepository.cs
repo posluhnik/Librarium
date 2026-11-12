@@ -28,6 +28,20 @@ namespace Librarium.DataAccess.Repositories
             return characters;
         }
 
+        public async Task<Character> GetById(Guid id, string userId)
+        {
+            var characterEntities = await _context.Characters
+                .AsNoTracking()
+                .ToListAsync();
+
+            var characters = characterEntities
+                .Select(b => Character.Create(b.Id, b.ownerId, b.Name, b.Description, b.Race).character)
+                .Where(b => b != null && (b.ownerId == userId) && (b.Id == id))
+                .ToList();
+
+            return characters[0];
+        }
+
         public async Task<Guid> Create(Character character, string ownerId)
         {
             if (string.IsNullOrEmpty(ownerId))
@@ -61,12 +75,14 @@ namespace Librarium.DataAccess.Repositories
             }
 
             if (ownerId == _context.Characters.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
+            {
                 await _context.Characters
                     .Where(b => b.Id == id)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(b => b.Name, b => name)
                         .SetProperty(b => b.Description, b => description)
                         .SetProperty(b => b.Race, b => race));
+            }
 
             return id;
         }

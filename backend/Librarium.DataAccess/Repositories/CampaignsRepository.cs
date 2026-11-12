@@ -28,6 +28,20 @@ namespace Librarium.DataAccess.Repositories
             return campaigns;
         }
 
+        public async Task<Campaign> GetById(Guid id, string userId)
+        {
+            var campaignEntities = await _context.Campaigns
+                .AsNoTracking()
+                .ToListAsync();
+
+            var campaigns = campaignEntities
+                .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
+                .Where(b => b != null && (b.ownerId == userId || b.Players.Contains(userId)) && (b.Id == id))
+                .ToList();
+
+            return campaigns[0];
+        }
+
         public async Task<Guid> Create(Campaign campaign, string ownerId)
         {
             if (string.IsNullOrEmpty(ownerId))
