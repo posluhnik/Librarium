@@ -37,6 +37,11 @@ namespace Librarium.API.Controllers
             
             var character = await _charactersService.GetCharacterById(id, userId);
             
+            if (character == null)
+            {
+                return NotFound($"Character with ID {id} not found for user {userId}.");
+            }
+            
             return Ok(character);
         }
 

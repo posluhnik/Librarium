@@ -39,6 +39,11 @@ namespace Librarium.DataAccess.Repositories
                 .Where(b => b != null && (b.ownerId == userId) && (b.Id == id))
                 .ToList();
 
+            if (characters.Count == 0)
+            {
+                return null;
+            }
+
             return characters[0];
         }
 

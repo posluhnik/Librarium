@@ -36,6 +36,11 @@ namespace Librarium.API.Controllers
 
             var campaign = await _campaignsService.GetCampaignById(id, userId);
 
+            if (campaign == null)
+            {
+                return NotFound($"Campaign with ID {id} not found for user {userId}.");
+            }
+            
             return Ok(campaign);
         }
         [HttpPost]

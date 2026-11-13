@@ -39,7 +39,14 @@ namespace Librarium.DataAccess.Repositories
                 .Where(b => b != null && (b.ownerId == userId || b.Players.Contains(userId)) && (b.Id == id))
                 .ToList();
 
-            return campaigns[0];
+            if (campaigns.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return campaigns[0];
+            }
         }
 
         public async Task<Guid> Create(Campaign campaign, string ownerId)
@@ -75,11 +82,14 @@ namespace Librarium.DataAccess.Repositories
             }
 
             if (ownerId == _context.Campaigns.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
+            {
                 await _context.Campaigns
                     .Where(b => b.Id == id)
                     .ExecuteUpdateAsync(s => s
                         .SetProperty(b => b.Name, b => name)
                         .SetProperty(b => b.Description, b => description));
+            }
+                
 
             return id;
         }
