@@ -40,6 +40,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<ICampaignsService, CampaignsService>();
 builder.Services.AddScoped<ICampaignsRepository, CampaignsRepository>();
+builder.Services.AddScoped<ICharactersService, CharactersService>();
+builder.Services.AddScoped<ICharactersRepository, CharactersRepository>();
 
 var app = builder.Build();
 

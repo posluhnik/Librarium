@@ -113,6 +113,33 @@ namespace Librarium.DataAccess.Migrations
                     b.ToTable("Campaigns");
                 });
 
+            modelBuilder.Entity("Librarium.DataAccess.Entities.CharacterEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Race")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ownerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Characters");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")

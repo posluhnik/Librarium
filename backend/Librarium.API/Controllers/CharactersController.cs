@@ -3,6 +3,7 @@ using Librarium.Application.Services;
 using Librarium.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Librarium.DataAccess.Repositories;
 
 namespace Librarium.API.Controllers
 {
@@ -10,7 +11,7 @@ namespace Librarium.API.Controllers
     [Route("[controller]")]
     public class CharactersController : ControllerBase
     {
-        private readonly ICampaignsService _campaignsService;
+        private readonly ICharactersService _charactersService;
 
         public CharactersController(ICharactersService charactersService)
         {
@@ -18,37 +19,38 @@ namespace Librarium.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CampaignsResponse>>> GetCampaigns()
+        public async Task<ActionResult<List<CharactersResponse>>> GetCharacters()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            var campaigns = await _campaignsService.GetAllCampaigns(userId);
+            var characters = await _charactersService.GetAllCharacters(userId);
 
-            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description, b.Players));
+            var response = characters.Select(b => new CharactersResponse(b.Id, b.ownerId, b.Name, b.Description, b.Race));
 
             return Ok(response);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CampaignsResponse>> GetCampaignById(Guid id)
+        public async Task<ActionResult<CharactersResponse>> GetCharacterById(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var campaign = await _campaignsService.GetCampaignById(id, userId);
-
-            return Ok(campaign);
+            
+            var character = await _charactersService.GetCharacterById(id, userId);
+            
+            return Ok(character);
         }
+
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)
+        public async Task<ActionResult<Guid>> CreateCharacter([FromBody] CharactersRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var (campaign, error) = Campaign.Create(
+            var (character, error) = Character.Create(
                 Guid.NewGuid(),
                 userId,
                 request.Name,
                 request.Description,
-                players: new List<string>()
+                request.Race
                 );
 
             if (!string.IsNullOrEmpty(error))
@@ -56,37 +58,27 @@ namespace Librarium.API.Controllers
                 return BadRequest(error);
             }
 
-            var campaignId = await _campaignsService.CreateCampaign(campaign, userId);
+            var characterId = await _charactersService.CreateCharacter(character, userId);
 
-            return Ok(campaignId);
+            return Ok(characterId);
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateCampaigns(Guid id, [FromBody] CampaignsRequest request)
+        public async Task<ActionResult<Guid>> UpdateCharacters(Guid id, [FromBody] CharactersRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var campaignId = await _campaignsService.UpdateCampaign(id, userId, request.Name, request.Description);
+            var characterId = await _charactersService.UpdateCharacter(id, userId, request.Name, request.Description, request.Race);
 
-            return Ok(campaignId);
+            return Ok(characterId);
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<Guid>> DeleteCampaign(Guid id)
+        public async Task<ActionResult<Guid>> DeleteCharacter(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Ok(await _campaignsService.DeleteCampaign(id, userId));
-        }
-
-        [HttpPost("join/{id:guid}")]
-        public async Task<ActionResult> JoinCampaign(Guid id)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            await _campaignsService.JoinCampaign(id, userId);
-
-            return Ok();
+            return Ok(await _charactersService.DeleteCharacter(id, userId));
         }
     }
 }
