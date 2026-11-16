@@ -34,28 +34,22 @@ namespace Librarium.DataAccess.Repositories
                 .AsNoTracking()
                 .ToListAsync();
 
-            var campaigns = campaignEntities
+            var campaigns =  campaignEntities
                 .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
                 .Where(b => b != null && (b.ownerId == userId || b.Players.Contains(userId)) && (b.Id == id))
                 .ToList();
 
-            if (campaigns.Count == 0)
-            {
-                return null;
-            }
-            else
+            if (campaigns.Count != 0)
             {
                 return campaigns[0];
             }
+
+            return null;
         }
 
-        public async Task<Guid> Create(Campaign campaign, string ownerId)
+        public async Task<Campaign> Create(Campaign campaign, string ownerId)
         {
-            if (string.IsNullOrEmpty(ownerId))
-            {
-                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
-            }
-            else
+            if (!string.IsNullOrEmpty(ownerId))
             {
                 var campaignEntity = new CampaignEntity
                 {
@@ -69,19 +63,20 @@ namespace Librarium.DataAccess.Repositories
                 await _context.Campaigns.AddAsync(campaignEntity);
                 await _context.SaveChangesAsync();
 
-                return campaignEntity.Id;
+                return campaign;
             }
-                
+
+            return null;
         }
 
-        public async Task<Guid> Update(Guid id, string ownerId, string name, string description)
+        public async Task<Campaign> Update(Guid id, string ownerId, string name, string description)
         {
-            if (string.IsNullOrEmpty(ownerId))
-            {
-                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
-            }
+            Campaign campaignResponse = _context.Campaigns
+                    .Where(b => b.Id == id && b.ownerId == ownerId)
+                    .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
+                    .FirstOrDefault();
 
-            if (ownerId == _context.Campaigns.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
+            if (campaignResponse != null)
             {
                 await _context.Campaigns
                     .Where(b => b.Id == id)
@@ -89,23 +84,27 @@ namespace Librarium.DataAccess.Repositories
                         .SetProperty(b => b.Name, b => name)
                         .SetProperty(b => b.Description, b => description));
             }
-                
-
-            return id;
+            
+            return campaignResponse;
         }
 
-        public async Task<Guid> Delete(Guid id, string ownerId)
+        public async Task<Campaign> Delete(Guid id, string ownerId)
         {
-            if (ownerId == _context.Campaigns.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
+            Campaign campaignResponse = _context.Campaigns
+                    .Where(b => b.Id == id && b.ownerId == ownerId)
+                    .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
+                    .FirstOrDefault();
+            
+            if (campaignResponse != null)
             {
                 await _context.Campaigns
                     .Where(b => b.Id == id)
                     .ExecuteDeleteAsync();
             }
-
-            return id;
+            
+            return campaignResponse;
         }
-        public async Task<Guid> Join(Guid id, string userId)
+        public async Task<Campaign> Join(Guid id, string userId)
         {
             var campaign = await _context.Campaigns.FirstOrDefaultAsync(b => b.Id == id);
 
@@ -115,7 +114,10 @@ namespace Librarium.DataAccess.Repositories
                 await _context.SaveChangesAsync();
             }
 
-            return id;
+            return _context.Campaigns
+                .Where(b => b.Id == id)
+                .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
+                .FirstOrDefault();
         }
     }
 }

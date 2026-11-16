@@ -30,30 +30,17 @@ namespace Librarium.DataAccess.Repositories
 
         public async Task<Character> GetById(Guid id, string userId)
         {
-            var characterEntities = await _context.Characters
-                .AsNoTracking()
-                .ToListAsync();
+            var query = _context.Characters
+                .Where(b => b.Id == id && b.ownerId == userId);
 
-            var characters = characterEntities
+            return await query
                 .Select(b => Character.Create(b.Id, b.ownerId, b.Name, b.Description, b.Race).character)
-                .Where(b => b != null && (b.ownerId == userId) && (b.Id == id))
-                .ToList();
-
-            if (characters.Count == 0)
-            {
-                return null;
-            }
-
-            return characters[0];
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Guid> Create(Character character, string ownerId)
+        public async Task<Character?> Create(Character character, string ownerId)
         {
-            if (string.IsNullOrEmpty(ownerId))
-            {
-                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
-            }
-            else
+            if (!string.IsNullOrEmpty(ownerId))
             {
                 var characterEntity = new CharacterEntity
                 {
@@ -67,41 +54,53 @@ namespace Librarium.DataAccess.Repositories
                 await _context.Characters.AddAsync(characterEntity);
                 await _context.SaveChangesAsync();
 
-                return character.Id;
+                return character;
             }
-                
+            
+            return null;
         }
 
-        public async Task<Guid> Update(Guid id, string ownerId, string name, string description, string race)
+        public async Task<Character?> Update(Guid id, string ownerId, string name, string description, string race)
         {
-            if (string.IsNullOrEmpty(ownerId))
-            {
-                throw new ArgumentException("Owner ID cannot be null or empty.", nameof(ownerId));
-            }
+            var query = _context.Characters
+                .Where(b => b.Id == id && b.ownerId == ownerId);
 
-            if (ownerId == _context.Characters.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
-            {
-                await _context.Characters
-                    .Where(b => b.Id == id)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(b => b.Name, b => name)
-                        .SetProperty(b => b.Description, b => description)
-                        .SetProperty(b => b.Race, b => race));
-            }
+            int updatedCount = await query.ExecuteUpdateAsync(s => s
+                .SetProperty(b => b.Name, name)
+                .SetProperty(b => b.Description, description)
+                .SetProperty(b => b.Race, race));
 
-            return id;
+            if (updatedCount == 0)
+                return null;
+
+            return await query
+                .Select(b => Character.Create(
+                    b.Id,
+                    b.ownerId,
+                    b.Name,
+                    b.Description,
+                    b.Race).character)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Guid> Delete(Guid id, string ownerId)
+        public async Task<Character?> Delete(Guid id, string ownerId)
         {
-            if (ownerId == _context.Characters.Where(b => b.Id == id).Select(b => b.ownerId).FirstOrDefault())
-            {
-                await _context.Characters
-                    .Where(b => b.Id == id)
-                    .ExecuteDeleteAsync();
-            }
+            var query = _context.Characters
+                .Where(b => b.Id == id && b.ownerId == ownerId);
+            
+            int deletedCount = await query.ExecuteDeleteAsync();
+            
+            if (deletedCount == 0)
+                return null;
 
-            return id;
+            return await query
+                .Select(b => Character.Create(
+                    b.Id,
+                    b.ownerId,
+                    b.Name,
+                    b.Description,
+                    b.Race).character)
+                .FirstOrDefaultAsync();
         }
     }
 }

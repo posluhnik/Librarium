@@ -26,7 +26,7 @@ namespace Librarium.Application.Services
         public async Task<Guid> CreateCampaign(Campaign campaign, string ownerId)
         {
             return await _campaginsRepository.Create(campaign, ownerId);
-        }
+        }   
 
         public async Task<Guid> UpdateCampaign(Guid id, string ownerId, string name, string description)
         {
