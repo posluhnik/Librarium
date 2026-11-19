@@ -2,7 +2,6 @@ using Librarium.Core.Models;
 using Librarium.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Librarium.DataAccess.Repositories
 {
     public class CharactersRepository : ICharactersRepository
@@ -28,7 +27,7 @@ namespace Librarium.DataAccess.Repositories
             return characters;
         }
 
-        public async Task<Character> GetById(Guid id, string userId)
+        public async Task<Character?> GetById(Guid id, string userId)
         {
             var query = _context.Characters
                 .Where(b => b.Id == id && b.ownerId == userId);

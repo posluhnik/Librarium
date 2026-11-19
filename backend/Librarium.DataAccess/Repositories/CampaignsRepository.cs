@@ -2,7 +2,6 @@
 using Librarium.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Librarium.DataAccess.Repositories
 {
     public class CampaignsRepository : ICampaignsRepository
@@ -16,95 +15,92 @@ namespace Librarium.DataAccess.Repositories
 
         public async Task<List<Campaign>> Get(string userId)
         {
-            var campaignEntities = await _context.Campaigns
+            var CampaignEntities = await _context.Campaigns
                 .AsNoTracking()
                 .ToListAsync();
 
-            var campaigns = campaignEntities
+            var Campaigns = CampaignEntities
                 .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
-                .Where(b => b != null && (b.ownerId == userId || b.Players.Contains(userId)))
+                .Where(b => b != null && (b.ownerId == userId))
                 .ToList();
 
-            return campaigns;
+            return Campaigns;
         }
 
-        public async Task<Campaign> GetById(Guid id, string userId)
+        public async Task<Campaign?> GetById(Guid id, string userId)
         {
-            var campaignEntities = await _context.Campaigns
-                .AsNoTracking()
-                .ToListAsync();
+            var query = _context.Campaigns
+                .Where(b => b.Id == id && b.ownerId == userId);
 
-            var campaigns =  campaignEntities
+            return await query
                 .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
-                .Where(b => b != null && (b.ownerId == userId || b.Players.Contains(userId)) && (b.Id == id))
-                .ToList();
-
-            if (campaigns.Count != 0)
-            {
-                return campaigns[0];
-            }
-
-            return null;
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Campaign> Create(Campaign campaign, string ownerId)
+        public async Task<Campaign?> Create(Campaign Campaign, string ownerId)
         {
             if (!string.IsNullOrEmpty(ownerId))
             {
-                var campaignEntity = new CampaignEntity
+                var CampaignEntity = new CampaignEntity
                 {
-                    Id = campaign.Id,
+                    Id = Campaign.Id,
                     ownerId = ownerId,
-                    Name = campaign.Name,
-                    Description = campaign.Description,
-                    Players = new List<string>()
+                    Name = Campaign.Name,
+                    Description = Campaign.Description,
+                    Players = Campaign.Players
                 };
 
-                await _context.Campaigns.AddAsync(campaignEntity);
+                await _context.Campaigns.AddAsync(CampaignEntity);
                 await _context.SaveChangesAsync();
 
-                return campaign;
+                return Campaign;
             }
-
+            
             return null;
         }
 
-        public async Task<Campaign> Update(Guid id, string ownerId, string name, string description)
+        public async Task<Campaign?> Update(Guid id, string ownerId, string name, string description)
         {
-            Campaign campaignResponse = _context.Campaigns
-                    .Where(b => b.Id == id && b.ownerId == ownerId)
-                    .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
-                    .FirstOrDefault();
+            var query = _context.Campaigns
+                .Where(b => b.Id == id && b.ownerId == ownerId);
 
-            if (campaignResponse != null)
-            {
-                await _context.Campaigns
-                    .Where(b => b.Id == id)
-                    .ExecuteUpdateAsync(s => s
-                        .SetProperty(b => b.Name, b => name)
-                        .SetProperty(b => b.Description, b => description));
-            }
-            
-            return campaignResponse;
+            int updatedCount = await query.ExecuteUpdateAsync(s => s
+                .SetProperty(b => b.Name, name)
+                .SetProperty(b => b.Description, description));
+
+            if (updatedCount == 0)
+                return null;
+
+            return await query
+                .Select(b => Campaign.Create(
+                    b.Id,
+                    b.ownerId,
+                    b.Name,
+                    b.Description,
+                    b.Players).campaign)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Campaign> Delete(Guid id, string ownerId)
+        public async Task<Campaign?> Delete(Guid id, string ownerId)
         {
-            Campaign campaignResponse = _context.Campaigns
-                    .Where(b => b.Id == id && b.ownerId == ownerId)
-                    .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
-                    .FirstOrDefault();
+            var query = _context.Campaigns
+                .Where(b => b.Id == id && b.ownerId == ownerId);
             
-            if (campaignResponse != null)
-            {
-                await _context.Campaigns
-                    .Where(b => b.Id == id)
-                    .ExecuteDeleteAsync();
-            }
+            int deletedCount = await query.ExecuteDeleteAsync();
             
-            return campaignResponse;
+            if (deletedCount == 0)
+                return null;
+
+            return await query
+                .Select(b => Campaign.Create(
+                    b.Id,
+                    b.ownerId,
+                    b.Name,
+                    b.Description,
+                    b.Players).campaign)
+                .FirstOrDefaultAsync();
         }
-        public async Task<Campaign> Join(Guid id, string userId)
+        public async Task<Campaign?> Join(Guid id, string userId)
         {
             var campaign = await _context.Campaigns.FirstOrDefaultAsync(b => b.Id == id);
 
