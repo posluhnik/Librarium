@@ -22,6 +22,11 @@ namespace Librarium.API.Controllers
         public async Task<ActionResult<List<CharactersResponse>>> GetCharacters()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
             
             var characters = await _charactersService.GetAllCharacters(userId);
 
@@ -34,12 +39,17 @@ namespace Librarium.API.Controllers
         public async Task<ActionResult<CharactersResponse>> GetCharacterById(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
             
             var character = await _charactersService.GetCharacterById(id, userId);
             
             if (character == null)
             {
-                return NotFound($"Character with ID {id} not found for user {userId}.");
+                return NotFound($"Character with ID {id} not found for user {userId}");
             }
             
             return Ok(character);
@@ -49,6 +59,11 @@ namespace Librarium.API.Controllers
         public async Task<ActionResult<Guid>> CreateCharacter([FromBody] CharactersRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
 
             var (character, error) = Character.Create(
                 Guid.NewGuid(),
@@ -63,27 +78,49 @@ namespace Librarium.API.Controllers
                 return BadRequest(error);
             }
 
-            var characterId = await _charactersService.CreateCharacter(character, userId);
+            var resp = await _charactersService.CreateCharacter(character, userId);
 
-            return Ok(characterId);
+            return Ok(resp);
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateCharacters(Guid id, [FromBody] CharactersRequest request)
+        public async Task<ActionResult<CharactersResponse>> UpdateCharacters(Guid id, [FromBody] CharactersRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var characterId = await _charactersService.UpdateCharacter(id, userId, request.Name, request.Description, request.Race);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
 
-            return Ok(characterId);
+            bool resp = await _charactersService.UpdateCharacter(id, userId, request.Name, request.Description, request.Race);
+
+            if (!resp)
+            {
+                return NotFound($"Character with ID {id} not found for user {userId}");
+            }
+
+            return Ok(resp);
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<Guid>> DeleteCharacter(Guid id)
+        public async Task<ActionResult<CharactersResponse>> DeleteCharacter(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Ok(await _charactersService.DeleteCharacter(id, userId));
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
+
+            bool resp = await _charactersService.DeleteCharacter(id, userId);
+
+            if (!resp)
+            {
+                return NotFound($"Character with ID {id} not found for user {userId}");
+            }
+
+            return Ok(resp);
         }
     }
 }

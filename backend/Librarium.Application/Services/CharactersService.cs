@@ -23,19 +23,19 @@ namespace Librarium.Application.Services
             return await _charactersRepository.GetById(id, userId);
         }
 
-        public async Task<Character?> CreateCharacter(Character character, string ownerId)
+        public async Task<Guid> CreateCharacter(Character character, string userId)
         {
-            return await _charactersRepository.Create(character, ownerId);
+            return await _charactersRepository.Create(character, userId);
         }
 
-        public async Task<Character?> UpdateCharacter(Guid id, string ownerId, string name, string description, string race)
+        public async Task<bool> UpdateCharacter(Guid id, string userId, string name, string description, string race)
         {
-            return await _charactersRepository.Update(id, ownerId, name, description, race);
+            return await _charactersRepository.Update(id, userId, name, description, race);
         }
 
-        public async Task<Character?> DeleteCharacter(Guid id, string ownerId)
+        public async Task<bool> DeleteCharacter(Guid id, string userId)
         {
-            return await _charactersRepository.Delete(id, ownerId);
+            return await _charactersRepository.Delete(id, userId);
         }
     }
 }

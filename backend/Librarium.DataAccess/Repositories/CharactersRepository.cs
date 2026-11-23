@@ -13,7 +13,7 @@ namespace Librarium.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<List<Character>> Get(string userId)
+        public async Task<List<Character>> Get(string? userId)
         {
             var characterEntities = await _context.Characters
                 .AsNoTracking()
@@ -27,7 +27,7 @@ namespace Librarium.DataAccess.Repositories
             return characters;
         }
 
-        public async Task<Character?> GetById(Guid id, string userId)
+        public async Task<Character?> GetById(Guid id, string? userId)
         {
             var query = _context.Characters
                 .Where(b => b.Id == id && b.ownerId == userId);
@@ -37,14 +37,14 @@ namespace Librarium.DataAccess.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Character?> Create(Character character, string ownerId)
+        public async Task<Guid> Create(Character character, string? userId)
         {
-            if (!string.IsNullOrEmpty(ownerId))
+            if (!string.IsNullOrEmpty(userId))
             {
                 var characterEntity = new CharacterEntity
                 {
                     Id = character.Id,
-                    ownerId = ownerId,
+                    ownerId = userId,
                     Name = character.Name,
                     Description = character.Description,
                     Race = character.Race
@@ -52,17 +52,15 @@ namespace Librarium.DataAccess.Repositories
 
                 await _context.Characters.AddAsync(characterEntity);
                 await _context.SaveChangesAsync();
-
-                return character;
             }
             
-            return null;
+            return character.Id;
         }
 
-        public async Task<Character?> Update(Guid id, string ownerId, string name, string description, string race)
+        public async Task<bool> Update(Guid id, string? userId, string name, string description, string race)
         {
             var query = _context.Characters
-                .Where(b => b.Id == id && b.ownerId == ownerId);
+                .Where(b => b.Id == id && b.ownerId == userId);
 
             int updatedCount = await query.ExecuteUpdateAsync(s => s
                 .SetProperty(b => b.Name, name)
@@ -70,36 +68,22 @@ namespace Librarium.DataAccess.Repositories
                 .SetProperty(b => b.Race, race));
 
             if (updatedCount == 0)
-                return null;
+                return false;
 
-            return await query
-                .Select(b => Character.Create(
-                    b.Id,
-                    b.ownerId,
-                    b.Name,
-                    b.Description,
-                    b.Race).character)
-                .FirstOrDefaultAsync();
+            return true;
         }
 
-        public async Task<Character?> Delete(Guid id, string ownerId)
+        public async Task<bool> Delete(Guid id, string? userId)
         {
             var query = _context.Characters
-                .Where(b => b.Id == id && b.ownerId == ownerId);
+                .Where(b => b.Id == id && b.ownerId == userId);
             
             int deletedCount = await query.ExecuteDeleteAsync();
             
             if (deletedCount == 0)
-                return null;
+                return false;
 
-            return await query
-                .Select(b => Character.Create(
-                    b.Id,
-                    b.ownerId,
-                    b.Name,
-                    b.Description,
-                    b.Race).character)
-                .FirstOrDefaultAsync();
+            return true;
         }
     }
 }

@@ -4,10 +4,10 @@ namespace Librarium.DataAccess.Repositories
 {
     public interface ICharactersRepository
     {
-        Task<Character?> Create(Character character, string ownerId);
-        Task<Character?> Delete(Guid id, string ownerId);
+        Task<Guid> Create(Character character, string? userId);
+        Task<bool> Delete(Guid id, string userId);
         Task<List<Character>> Get(string userId);
         Task<Character?> GetById(Guid id, string userId);
-        Task<Character?> Update(Guid id, string ownerId, string name, string description, string race);
+        Task<bool> Update(Guid id, string userId, string name, string description, string race);
     }
 }

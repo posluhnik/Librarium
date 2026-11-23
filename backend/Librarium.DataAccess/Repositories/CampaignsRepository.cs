@@ -13,7 +13,7 @@ namespace Librarium.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<List<Campaign>> Get(string userId)
+        public async Task<List<Campaign>> Get(string? userId)
         {
             var CampaignEntities = await _context.Campaigns
                 .AsNoTracking()
@@ -27,7 +27,7 @@ namespace Librarium.DataAccess.Repositories
             return Campaigns;
         }
 
-        public async Task<Campaign?> GetById(Guid id, string userId)
+        public async Task<Campaign?> GetById(Guid id, string? userId)
         {
             var query = _context.Campaigns
                 .Where(b => b.Id == id && b.ownerId == userId);
@@ -37,14 +37,14 @@ namespace Librarium.DataAccess.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Campaign?> Create(Campaign Campaign, string ownerId)
+        public async Task<Guid> Create(Campaign Campaign, string? userId)
         {
-            if (!string.IsNullOrEmpty(ownerId))
+            if (!string.IsNullOrEmpty(userId))
             {
                 var CampaignEntity = new CampaignEntity
                 {
                     Id = Campaign.Id,
-                    ownerId = ownerId,
+                    ownerId = userId,
                     Name = Campaign.Name,
                     Description = Campaign.Description,
                     Players = Campaign.Players
@@ -52,55 +52,40 @@ namespace Librarium.DataAccess.Repositories
 
                 await _context.Campaigns.AddAsync(CampaignEntity);
                 await _context.SaveChangesAsync();
-
-                return Campaign;
             }
             
-            return null;
+            return Campaign.Id;
         }
 
-        public async Task<Campaign?> Update(Guid id, string ownerId, string name, string description)
+        public async Task<bool> Update(Guid id, string? userId, string name, string description)
         {
             var query = _context.Campaigns
-                .Where(b => b.Id == id && b.ownerId == ownerId);
+                .Where(b => b.Id == id && b.ownerId == userId);
 
             int updatedCount = await query.ExecuteUpdateAsync(s => s
                 .SetProperty(b => b.Name, name)
                 .SetProperty(b => b.Description, description));
 
             if (updatedCount == 0)
-                return null;
+                return false;
 
-            return await query
-                .Select(b => Campaign.Create(
-                    b.Id,
-                    b.ownerId,
-                    b.Name,
-                    b.Description,
-                    b.Players).campaign)
-                .FirstOrDefaultAsync();
+            return true;
         }
 
-        public async Task<Campaign?> Delete(Guid id, string ownerId)
+        public async Task<bool> Delete(Guid id, string? userId)
         {
             var query = _context.Campaigns
-                .Where(b => b.Id == id && b.ownerId == ownerId);
+                .Where(b => b.Id == id && b.ownerId == userId);
             
             int deletedCount = await query.ExecuteDeleteAsync();
             
             if (deletedCount == 0)
-                return null;
+                return false;
 
-            return await query
-                .Select(b => Campaign.Create(
-                    b.Id,
-                    b.ownerId,
-                    b.Name,
-                    b.Description,
-                    b.Players).campaign)
-                .FirstOrDefaultAsync();
+            return true;
         }
-        public async Task<Campaign?> Join(Guid id, string userId)
+
+        public async Task<bool> Join(Guid id, string? userId)
         {
             var campaign = await _context.Campaigns.FirstOrDefaultAsync(b => b.Id == id);
 
@@ -108,12 +93,26 @@ namespace Librarium.DataAccess.Repositories
             {
                 campaign.Players.Add(userId);
                 await _context.SaveChangesAsync();
+
+                return true;
             }
 
-            return _context.Campaigns
-                .Where(b => b.Id == id)
-                .Select(b => Campaign.Create(b.Id, b.ownerId, b.Name, b.Description, b.Players).campaign)
-                .FirstOrDefault();
+            return false;
+        }
+
+        public async Task<bool> AddCharacter(Guid campaignId, Guid characterId, string? userId)
+        {
+            var campaign = await _context.Campaigns.FirstOrDefaultAsync(b => b.Id == campaignId && (b.ownerId == userId || b.Players.Contains(userId)));
+            var character = await _context.Characters.FirstOrDefaultAsync(b => b.Id == characterId && b.ownerId == userId);
+
+            if (campaign != null && character != null)
+            {
+                campaign.Characters.Add(characterId);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

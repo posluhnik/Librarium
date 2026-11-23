@@ -21,6 +21,11 @@ namespace Librarium.API.Controllers
         public async Task<ActionResult<List<CampaignsResponse>>> GetCampaigns()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
             
             var campaigns = await _campaignsService.GetAllCampaigns(userId);
 
@@ -34,11 +39,16 @@ namespace Librarium.API.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
+
             var campaign = await _campaignsService.GetCampaignById(id, userId);
 
             if (campaign == null)
             {
-                return NotFound($"Campaign with ID {id} not found for user {userId}.");
+                return NotFound($"Campaign with ID {id} not found for user {userId}");
             }
             
             return Ok(campaign);
@@ -47,6 +57,11 @@ namespace Librarium.API.Controllers
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
 
             var (campaign, error) = Campaign.Create(
                 Guid.NewGuid(),
@@ -61,37 +76,69 @@ namespace Librarium.API.Controllers
                 return BadRequest(error);
             }
 
-            var campaignId = await _campaignsService.CreateCampaign(campaign, userId);
+            var resp = await _campaignsService.CreateCampaign(campaign, userId);
 
-            return Ok(campaignId);
+            return Ok(resp);
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateCampaigns(Guid id, [FromBody] CampaignsRequest request)
+        public async Task<ActionResult<bool>> UpdateCampaigns(Guid id, [FromBody] CampaignsRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var campaignId = await _campaignsService.UpdateCampaign(id, userId, request.Name, request.Description);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
 
-            return Ok(campaignId);
+            var resp = await _campaignsService.UpdateCampaign(id, userId, request.Name, request.Description);
+
+            if (!resp)
+            {
+                return NotFound($"Campaign with ID {id} not found for user {userId}");
+            }
+            
+            return Ok(resp);
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<Guid>> DeleteCampaign(Guid id)
+        public async Task<ActionResult<bool>> DeleteCampaign(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Ok(await _campaignsService.DeleteCampaign(id, userId));
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
+            
+            bool resp = await _campaignsService.DeleteCampaign(id, userId);
+            
+            if (!resp)
+            {
+                return NotFound($"Campaign with ID {id} not found for user {userId}");
+            }
+
+            return Ok(resp);
         }
 
         [HttpPost("join/{id:guid}")]
-        public async Task<ActionResult> JoinCampaign(Guid id)
+        public async Task<ActionResult<bool>> JoinCampaign(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
 
-            await _campaignsService.JoinCampaign(id, userId);
+            bool resp = await _campaignsService.JoinCampaign(id, userId);
 
-            return Ok();
+            if (!resp)
+            {
+                return NotFound($"Campaign with ID {id} not found for user {userId}");
+            }
+            
+            return Ok(resp);
         }
     }
 }

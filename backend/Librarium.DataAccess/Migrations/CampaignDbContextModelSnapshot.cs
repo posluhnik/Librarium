@@ -105,7 +105,6 @@ namespace Librarium.DataAccess.Migrations
                         .HasColumnType("text[]");
 
                     b.Property<string>("ownerId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -132,7 +131,6 @@ namespace Librarium.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ownerId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

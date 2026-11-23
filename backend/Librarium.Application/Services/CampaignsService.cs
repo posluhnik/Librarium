@@ -13,31 +13,31 @@ namespace Librarium.Application.Services
             _campaginsRepository = campaginsRepository;
         }
 
-        public async Task<List<Campaign>> GetAllCampaigns(string userId)
+        public async Task<List<Campaign>> GetAllCampaigns(string? userId)
         {
             return await _campaginsRepository.Get(userId);
         }
 
-        public async Task<Campaign?> GetCampaignById(Guid id, string userId)
+        public async Task<Campaign?> GetCampaignById(Guid id, string? userId)
         {
             return await _campaginsRepository.GetById(id, userId);
         }
 
-        public async Task<Campaign?> CreateCampaign(Campaign campaign, string ownerId)
+        public async Task<Guid> CreateCampaign(Campaign campaign, string? userId)
         {
-            return await _campaginsRepository.Create(campaign, ownerId);
+            return await _campaginsRepository.Create(campaign, userId);
         }   
 
-        public async Task<Campaign?> UpdateCampaign(Guid id, string ownerId, string name, string description)
+        public async Task<bool> UpdateCampaign(Guid id, string? userId, string name, string description)
         {
-            return await _campaginsRepository.Update(id, ownerId, name, description);
+            return await _campaginsRepository.Update(id, userId, name, description);
         }
 
-        public async Task<Campaign?> DeleteCampaign(Guid id, string ownerId)
+        public async Task<bool> DeleteCampaign(Guid id, string? userId)
         {
-            return await _campaginsRepository.Delete(id, ownerId);
+            return await _campaginsRepository.Delete(id, userId);
         }
-        public async Task<Campaign?> JoinCampaign(Guid id, string userId)
+        public async Task<bool> JoinCampaign(Guid id, string? userId)
         {
             return await _campaginsRepository.Join(id, userId);
         }
