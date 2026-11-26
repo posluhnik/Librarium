@@ -29,7 +29,7 @@ namespace Librarium.API.Controllers
             
             var campaigns = await _campaignsService.GetAllCampaigns(userId);
 
-            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description, b.Players));
+            var response = campaigns.Select(b => new CampaignsResponse(b.Id, b.ownerId, b.Name, b.Description, b.Players, b.Characters));
 
             return Ok(response);
         }
@@ -53,6 +53,7 @@ namespace Librarium.API.Controllers
             
             return Ok(campaign);
         }
+
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateCampaign([FromBody] CampaignsRequest request)
         {
@@ -68,7 +69,8 @@ namespace Librarium.API.Controllers
                 userId,
                 request.Name,
                 request.Description,
-                players: new List<string>()
+                players: new List<string>(),
+                characters: new List<Guid>()
                 );
 
             if (!string.IsNullOrEmpty(error))
@@ -140,5 +142,19 @@ namespace Librarium.API.Controllers
             
             return Ok(resp);
         }
+
+        [HttpPost("addchar/{id:guid}")]
+        public async Task<ActionResult<bool>> AddCharacter(Guid campaignId, Guid characterId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID is missing or invalid");
+            }
+
+            return await _campaignsService.AddCharacter(campaignId, characterId, userId);
+        }
+
     }
 }

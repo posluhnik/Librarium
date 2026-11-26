@@ -4,7 +4,7 @@ namespace Librarium.Core.Models
     {
         public const int MAX_TITLE_LENGTH = 250;
 
-        private Character(Guid id, string ownerid, string name, string description, string race)
+        private Character(Guid id, string? ownerid, string name, string description, string race)
         {
             Id = id;
             ownerId = ownerid;
@@ -14,12 +14,12 @@ namespace Librarium.Core.Models
         }
         
         public Guid Id { get; }
-        public string ownerId { get; set; }
+        public string? ownerId { get; set; }
         public string Name { get; } = string.Empty;
         public string Description { get; } = string.Empty;
         public string Race { get; } = string.Empty;
 
-        public static (Character character, string Error) Create(Guid id, string ownerId, string name, string description, string race)
+        public static (Character character, string Error) Create(Guid id, string? ownerId, string name, string description, string race)
         {
             var error = string.Empty;
 

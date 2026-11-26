@@ -41,5 +41,9 @@ namespace Librarium.Application.Services
         {
             return await _campaginsRepository.Join(id, userId);
         }
+        public async Task<bool> AddCharacter(Guid campaignId, Guid characterId, string? userId)
+        {
+            return await _campaginsRepository.AddChar(campaignId, characterId, userId);
+        }
     }
 }

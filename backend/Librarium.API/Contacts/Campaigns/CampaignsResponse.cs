@@ -2,9 +2,10 @@
 {
     public record CampaignsResponse(
         Guid Id,
-        string ownerId,
+        string? ownerId,
         string Name,
         string Description,
-        List<string> Players
+        List<string> Players,
+        List<Guid> Characters
     );
 }

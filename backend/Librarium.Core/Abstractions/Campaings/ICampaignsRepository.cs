@@ -10,5 +10,6 @@ namespace Librarium.DataAccess.Repositories
         Task<Campaign?> GetById(Guid id, string? userId);
         Task<bool> Update(Guid id, string? userId, string name, string description);
         Task<bool> Join(Guid id, string? userId);
+        Task<bool> AddChar(Guid campaignId, Guid characterId, string? userId);
     }
 }

@@ -39,21 +39,18 @@ namespace Librarium.DataAccess.Repositories
 
         public async Task<Guid> Create(Character character, string? userId)
         {
-            if (!string.IsNullOrEmpty(userId))
+            var characterEntity = new CharacterEntity
             {
-                var characterEntity = new CharacterEntity
-                {
-                    Id = character.Id,
-                    ownerId = userId,
-                    Name = character.Name,
-                    Description = character.Description,
-                    Race = character.Race
-                };
+                Id = character.Id,
+                ownerId = userId,
+                Name = character.Name,
+                Description = character.Description,
+                Race = character.Race
+            };
 
-                await _context.Characters.AddAsync(characterEntity);
-                await _context.SaveChangesAsync();
-            }
-            
+            await _context.Characters.AddAsync(characterEntity);
+            await _context.SaveChangesAsync();
+
             return character.Id;
         }
 

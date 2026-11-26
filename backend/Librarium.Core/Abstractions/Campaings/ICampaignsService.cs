@@ -10,5 +10,6 @@ namespace Librarium.Application.Services
         Task<Campaign?> GetCampaignById(Guid id, string? userId);
         Task<bool> UpdateCampaign(Guid id, string? userId, string name, string description);
         Task<bool> JoinCampaign(Guid id, string? userId);
+        Task<bool> AddCharacter(Guid campaignId, Guid characterId, string? userId);
     }
 }
